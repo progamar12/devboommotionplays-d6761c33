@@ -194,7 +194,8 @@ function HostPage() {
     })();
 
     // Bridge: set on window so the other effect (pose) can call it
-    (window as unknown as { __mocapUpdate?: typeof updateSkeletonRef }).__mocapUpdate = (lm) =>
+    type LM = Array<{ x: number; y: number; z: number }> | null;
+    (window as unknown as { __mocapUpdate?: (lm: LM) => void }).__mocapUpdate = (lm: LM) =>
       updateSkeletonRef?.(lm);
 
     return () => {
