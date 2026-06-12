@@ -363,11 +363,19 @@ function HostPage() {
           <span>FPS <span className="text-foreground">{fps}</span></span>
           <span>JOINTS <span className="text-foreground">{landmarkCount}</span></span>
         </div>
+      </header>
 
       <div className="flex-1 grid lg:grid-cols-[1fr_360px] gap-0">
-        {/* 3D stage */}
+        {/* Main stage */}
         <div className="relative bg-black/40 grid-bg overflow-hidden">
-          <div ref={stageRef} className="absolute inset-0" />
+          <div ref={stageRef} className={`absolute inset-0 ${view === "skeleton" ? "" : "hidden"}`} />
+          {view === "mk9" && (
+            <div className="absolute inset-0 flex items-center justify-center p-6">
+              <div className="w-full max-w-4xl">
+                <Mk9Game />
+              </div>
+            </div>
+          )}
           <div className="absolute bottom-4 left-4 right-4 font-mono text-xs text-muted-foreground">
             {message}
           </div>
