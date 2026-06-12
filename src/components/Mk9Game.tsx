@@ -134,7 +134,7 @@ export function Mk9Game() {
     };
 
     const onResult = (won: boolean) => {
-      setStats((prev) => {
+      setStats((prev: { wins: number; losses: number; streak: number; best: number }) => {
         const next = {
           wins: prev.wins + (won ? 1 : 0),
           losses: prev.losses + (won ? 0 : 1),
