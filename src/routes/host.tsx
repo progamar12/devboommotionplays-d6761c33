@@ -306,10 +306,12 @@ function HostPage() {
                     ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
                   }
                 }
-                const update = (window as unknown as {
+                const w = window as unknown as {
                   __mocapUpdate?: (l: Array<{ x: number; y: number; z: number }> | null) => void;
-                }).__mocapUpdate;
-                update?.(lm);
+                  __mk9Update?: (l: Array<{ x: number; y: number; z: number }> | null) => void;
+                };
+                w.__mocapUpdate?.(lm);
+                w.__mk9Update?.(lm);
                 setStatus(lm ? "tracking" : "connected");
               }
 
