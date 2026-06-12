@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "motion playz" },
+      { name: "description", content: "Motion To Game captures phone camera data for real-time player movement analysis and game input." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "motion playz" },
+      { property: "og:description", content: "Motion To Game captures phone camera data for real-time player movement analysis and game input." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "motion playz" },
+      { name: "twitter:description", content: "Motion To Game captures phone camera data for real-time player movement analysis and game input." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/81a7d7ea-46fc-435b-8339-caffb3fdfe28/id-preview-ba890054--7a14ce1e-45bd-4039-8906-c01ba4ff9cc4.lovable.app-1781239347916.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/81a7d7ea-46fc-435b-8339-caffb3fdfe28/id-preview-ba890054--7a14ce1e-45bd-4039-8906-c01ba4ff9cc4.lovable.app-1781239347916.png" },
     ],
     links: [
       {
