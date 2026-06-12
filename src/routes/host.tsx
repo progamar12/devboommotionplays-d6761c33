@@ -348,12 +348,21 @@ function HostPage() {
           <span className="inline-block size-2.5 rounded-full bg-primary glow-cyan animate-pulse" />
           <div className="font-mono text-xs uppercase tracking-[0.2em] text-primary">mocap host</div>
         </div>
-        <div className="flex items-center gap-6 font-mono text-xs text-muted-foreground">
+        <div className="flex items-center gap-4 font-mono text-xs text-muted-foreground">
+          <div className="flex rounded-md overflow-hidden border border-border">
+            <button
+              onClick={() => setView("skeleton")}
+              className={`px-3 py-1.5 transition-colors ${view === "skeleton" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >SKELETON</button>
+            <button
+              onClick={() => setView("mk9")}
+              className={`px-3 py-1.5 transition-colors ${view === "mk9" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >MK9</button>
+          </div>
           <span>STATUS <span className="text-foreground">{status}</span></span>
           <span>FPS <span className="text-foreground">{fps}</span></span>
           <span>JOINTS <span className="text-foreground">{landmarkCount}</span></span>
         </div>
-      </header>
 
       <div className="flex-1 grid lg:grid-cols-[1fr_360px] gap-0">
         {/* 3D stage */}
