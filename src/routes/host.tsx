@@ -30,6 +30,7 @@ function HostPage() {
   const [message, setMessage] = useState<string>("Initializing…");
   const [fps, setFps] = useState<number>(0);
   const [landmarkCount, setLandmarkCount] = useState<number>(0);
+  const [view, setView] = useState<"skeleton" | "mk9">("skeleton");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
