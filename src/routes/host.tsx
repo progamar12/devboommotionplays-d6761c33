@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import { Mk9Game } from "@/components/Mk9Game";
 
 export const Route = createFileRoute("/host")({
   head: () => ({
