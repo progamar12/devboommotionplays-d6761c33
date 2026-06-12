@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import { Mk9Game } from "@/components/Mk9Game";
 
 export const Route = createFileRoute("/host")({
   head: () => ({
@@ -29,6 +30,7 @@ function HostPage() {
   const [message, setMessage] = useState<string>("Initializing…");
   const [fps, setFps] = useState<number>(0);
   const [landmarkCount, setLandmarkCount] = useState<number>(0);
+  const [view, setView] = useState<"skeleton" | "mk9">("skeleton");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -304,10 +306,12 @@ function HostPage() {
                     ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
                   }
                 }
-                const update = (window as unknown as {
+                const w = window as unknown as {
                   __mocapUpdate?: (l: Array<{ x: number; y: number; z: number }> | null) => void;
-                }).__mocapUpdate;
-                update?.(lm);
+                  __mk9Update?: (l: Array<{ x: number; y: number; z: number }> | null) => void;
+                };
+                w.__mocapUpdate?.(lm);
+                w.__mk9Update?.(lm);
                 setStatus(lm ? "tracking" : "connected");
               }
 
@@ -344,7 +348,17 @@ function HostPage() {
           <span className="inline-block size-2.5 rounded-full bg-primary glow-cyan animate-pulse" />
           <div className="font-mono text-xs uppercase tracking-[0.2em] text-primary">mocap host</div>
         </div>
-        <div className="flex items-center gap-6 font-mono text-xs text-muted-foreground">
+        <div className="flex items-center gap-4 font-mono text-xs text-muted-foreground">
+          <div className="flex rounded-md overflow-hidden border border-border">
+            <button
+              onClick={() => setView("skeleton")}
+              className={`px-3 py-1.5 transition-colors ${view === "skeleton" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >SKELETON</button>
+            <button
+              onClick={() => setView("mk9")}
+              className={`px-3 py-1.5 transition-colors ${view === "mk9" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >MK9</button>
+          </div>
           <span>STATUS <span className="text-foreground">{status}</span></span>
           <span>FPS <span className="text-foreground">{fps}</span></span>
           <span>JOINTS <span className="text-foreground">{landmarkCount}</span></span>
@@ -352,9 +366,16 @@ function HostPage() {
       </header>
 
       <div className="flex-1 grid lg:grid-cols-[1fr_360px] gap-0">
-        {/* 3D stage */}
+        {/* Main stage */}
         <div className="relative bg-black/40 grid-bg overflow-hidden">
-          <div ref={stageRef} className="absolute inset-0" />
+          <div ref={stageRef} className={`absolute inset-0 ${view === "skeleton" ? "" : "hidden"}`} />
+          {view === "mk9" && (
+            <div className="absolute inset-0 flex items-center justify-center p-6">
+              <div className="w-full max-w-4xl">
+                <Mk9Game />
+              </div>
+            </div>
+          )}
           <div className="absolute bottom-4 left-4 right-4 font-mono text-xs text-muted-foreground">
             {message}
           </div>
