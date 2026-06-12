@@ -16,8 +16,10 @@ type Status = "booting" | "waiting" | "connected" | "tracking" | "error";
 
 function generateRoomCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = new Uint8Array(6);
+  crypto.getRandomValues(bytes);
   let s = "";
-  for (let i = 0; i < 6; i++) s += alphabet[Math.floor(Math.random() * alphabet.length)];
+  for (let i = 0; i < 6; i++) s += alphabet[bytes[i] % alphabet.length];
   return s;
 }
 
