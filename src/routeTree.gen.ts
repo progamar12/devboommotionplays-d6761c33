@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PhoneRouteImport } from './routes/phone'
 import { Route as HostRouteImport } from './routes/host'
 import { Route as GamesRouteImport } from './routes/games'
+import { Route as BrowserRouteImport } from './routes/browser'
 import { Route as IndexRouteImport } from './routes/index'
 
 const PhoneRoute = PhoneRouteImport.update({
@@ -29,6 +30,11 @@ const GamesRoute = GamesRouteImport.update({
   path: '/games',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrowserRoute = BrowserRouteImport.update({
+  id: '/browser',
+  path: '/browser',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/browser': typeof BrowserRoute
   '/games': typeof GamesRoute
   '/host': typeof HostRoute
   '/phone': typeof PhoneRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/browser': typeof BrowserRoute
   '/games': typeof GamesRoute
   '/host': typeof HostRoute
   '/phone': typeof PhoneRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/browser': typeof BrowserRoute
   '/games': typeof GamesRoute
   '/host': typeof HostRoute
   '/phone': typeof PhoneRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/games' | '/host' | '/phone'
+  fullPaths: '/' | '/browser' | '/games' | '/host' | '/phone'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/games' | '/host' | '/phone'
-  id: '__root__' | '/' | '/games' | '/host' | '/phone'
+  to: '/' | '/browser' | '/games' | '/host' | '/phone'
+  id: '__root__' | '/' | '/browser' | '/games' | '/host' | '/phone'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BrowserRoute: typeof BrowserRoute
   GamesRoute: typeof GamesRoute
   HostRoute: typeof HostRoute
   PhoneRoute: typeof PhoneRoute
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/browser': {
+      id: '/browser'
+      path: '/browser'
+      fullPath: '/browser'
+      preLoaderRoute: typeof BrowserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BrowserRoute: BrowserRoute,
   GamesRoute: GamesRoute,
   HostRoute: HostRoute,
   PhoneRoute: PhoneRoute,
