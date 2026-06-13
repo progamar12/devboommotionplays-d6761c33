@@ -65,6 +65,13 @@ function Index() {
           <li><span className="text-primary">02.</span> Scan QR with iPhone</li>
           <li><span className="text-primary">03.</span> Cast PC tab to TV</li>
         </ol>
+
+        <div className="mt-10">
+          <Link to="/games" className="inline-block rounded-xl border border-border bg-card px-6 py-4 hover:border-primary transition">
+            <div className="font-mono text-xs uppercase tracking-widest text-primary">→ Game Hub</div>
+            <div className="mt-1 text-sm text-muted-foreground">Built-in games + create your own with AI</div>
+          </Link>
+        </div>
       </div>
     </div>
   );
