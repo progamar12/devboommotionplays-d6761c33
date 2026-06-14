@@ -21,9 +21,9 @@ function TennisPage() {
   const stateRef = useRef({
     score: { you: 0, cpu: 0 },
     streak: 0,
-    setScore: (s: { you: number; cpu: number }) => void s,
-    setStreak: (n: number) => void n,
-    setMessage: (m: string) => void m,
+    setScore: setScore as (s: { you: number; cpu: number }) => void,
+    setStreak: setStreak as (n: number) => void,
+    setMessage: setMessage as (m: string) => void,
   });
   stateRef.current.setScore = setScore;
   stateRef.current.setStreak = setStreak;
