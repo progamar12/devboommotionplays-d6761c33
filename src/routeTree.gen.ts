@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TennisRouteImport } from './routes/tennis'
 import { Route as PhoneRouteImport } from './routes/phone'
 import { Route as HostRouteImport } from './routes/host'
 import { Route as GamesRouteImport } from './routes/games'
 import { Route as BrowserRouteImport } from './routes/browser'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TennisRoute = TennisRouteImport.update({
+  id: '/tennis',
+  path: '/tennis',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PhoneRoute = PhoneRouteImport.update({
   id: '/phone',
   path: '/phone',
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/games': typeof GamesRoute
   '/host': typeof HostRoute
   '/phone': typeof PhoneRoute
+  '/tennis': typeof TennisRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/games': typeof GamesRoute
   '/host': typeof HostRoute
   '/phone': typeof PhoneRoute
+  '/tennis': typeof TennisRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,14 @@ export interface FileRoutesById {
   '/games': typeof GamesRoute
   '/host': typeof HostRoute
   '/phone': typeof PhoneRoute
+  '/tennis': typeof TennisRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/browser' | '/games' | '/host' | '/phone'
+  fullPaths: '/' | '/browser' | '/games' | '/host' | '/phone' | '/tennis'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/browser' | '/games' | '/host' | '/phone'
-  id: '__root__' | '/' | '/browser' | '/games' | '/host' | '/phone'
+  to: '/' | '/browser' | '/games' | '/host' | '/phone' | '/tennis'
+  id: '__root__' | '/' | '/browser' | '/games' | '/host' | '/phone' | '/tennis'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,10 +86,18 @@ export interface RootRouteChildren {
   GamesRoute: typeof GamesRoute
   HostRoute: typeof HostRoute
   PhoneRoute: typeof PhoneRoute
+  TennisRoute: typeof TennisRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tennis': {
+      id: '/tennis'
+      path: '/tennis'
+      fullPath: '/tennis'
+      preLoaderRoute: typeof TennisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/phone': {
       id: '/phone'
       path: '/phone'
@@ -125,6 +142,7 @@ const rootRouteChildren: RootRouteChildren = {
   GamesRoute: GamesRoute,
   HostRoute: HostRoute,
   PhoneRoute: PhoneRoute,
+  TennisRoute: TennisRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
