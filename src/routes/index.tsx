@@ -79,6 +79,10 @@ function Index() {
             <div className="font-mono text-xs uppercase tracking-widest text-accent">→ VR Tennis</div>
             <div className="mt-1 text-sm text-muted-foreground">First-person sunset court. Jump to swing.</div>
           </Link>
+          <Link to="/fighter" className="block rounded-xl border border-border bg-card px-6 py-4 hover:border-accent transition">
+            <div className="font-mono text-xs uppercase tracking-widest text-accent">→ Shadow Kombat</div>
+            <div className="mt-1 text-sm text-muted-foreground">MK9-style 2D fighter. Combos, specials, KOs.</div>
+          </Link>
         </div>
       </div>
     </div>

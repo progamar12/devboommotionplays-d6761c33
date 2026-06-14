@@ -13,6 +13,7 @@ import { Route as TennisRouteImport } from './routes/tennis'
 import { Route as PhoneRouteImport } from './routes/phone'
 import { Route as HostRouteImport } from './routes/host'
 import { Route as GamesRouteImport } from './routes/games'
+import { Route as FighterRouteImport } from './routes/fighter'
 import { Route as BrowserRouteImport } from './routes/browser'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -36,6 +37,11 @@ const GamesRoute = GamesRouteImport.update({
   path: '/games',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FighterRoute = FighterRouteImport.update({
+  id: '/fighter',
+  path: '/fighter',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BrowserRoute = BrowserRouteImport.update({
   id: '/browser',
   path: '/browser',
@@ -50,6 +56,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/browser': typeof BrowserRoute
+  '/fighter': typeof FighterRoute
   '/games': typeof GamesRoute
   '/host': typeof HostRoute
   '/phone': typeof PhoneRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/browser': typeof BrowserRoute
+  '/fighter': typeof FighterRoute
   '/games': typeof GamesRoute
   '/host': typeof HostRoute
   '/phone': typeof PhoneRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/browser': typeof BrowserRoute
+  '/fighter': typeof FighterRoute
   '/games': typeof GamesRoute
   '/host': typeof HostRoute
   '/phone': typeof PhoneRoute
@@ -74,15 +83,31 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/browser' | '/games' | '/host' | '/phone' | '/tennis'
+  fullPaths:
+    | '/'
+    | '/browser'
+    | '/fighter'
+    | '/games'
+    | '/host'
+    | '/phone'
+    | '/tennis'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/browser' | '/games' | '/host' | '/phone' | '/tennis'
-  id: '__root__' | '/' | '/browser' | '/games' | '/host' | '/phone' | '/tennis'
+  to: '/' | '/browser' | '/fighter' | '/games' | '/host' | '/phone' | '/tennis'
+  id:
+    | '__root__'
+    | '/'
+    | '/browser'
+    | '/fighter'
+    | '/games'
+    | '/host'
+    | '/phone'
+    | '/tennis'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrowserRoute: typeof BrowserRoute
+  FighterRoute: typeof FighterRoute
   GamesRoute: typeof GamesRoute
   HostRoute: typeof HostRoute
   PhoneRoute: typeof PhoneRoute
@@ -119,6 +144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fighter': {
+      id: '/fighter'
+      path: '/fighter'
+      fullPath: '/fighter'
+      preLoaderRoute: typeof FighterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/browser': {
       id: '/browser'
       path: '/browser'
@@ -139,6 +171,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrowserRoute: BrowserRoute,
+  FighterRoute: FighterRoute,
   GamesRoute: GamesRoute,
   HostRoute: HostRoute,
   PhoneRoute: PhoneRoute,
