@@ -5,7 +5,7 @@ export const Route = createFileRoute("/tennis")({
   head: () => ({
     meta: [
       { title: "VR Tennis — MoCap Bridge" },
-      { name: "description", content: "First-person VR tennis. Jump to swing your racket." },
+      { name: "description", content: "First-person VR tennis. Swing your fist like a racket to hit the ball." },
     ],
   }),
   component: TennisPage,
@@ -17,7 +17,7 @@ function TennisPage() {
   const stageRef = useRef<HTMLDivElement>(null);
   const [score, setScore] = useState({ you: 0, cpu: 0 });
   const [streak, setStreak] = useState(0);
-  const [message, setMessage] = useState("Press SPACE or JUMP to swing");
+  const [message, setMessage] = useState("Swing your arm like a racket to hit the ball");
   const stateRef = useRef({
     score: { you: 0, cpu: 0 },
     streak: 0,
@@ -216,7 +216,7 @@ function TennisPage() {
         const T = 0.9 + Math.random() * 0.4;
         bv.set((tx - ball.position.x) / T, (0 - ball.position.y - 0.5 * GRAV * T * T) / T, (tz - ball.position.z) / T);
         ballState = "incoming";
-        stateRef.current.setMessage("Incoming! Jump to swing.");
+        stateRef.current.setMessage("Incoming! Swing your arm!");
       };
 
       serveTimer = 1.2;
@@ -254,24 +254,30 @@ function TennisPage() {
       };
       window.addEventListener("keydown", onKey);
 
-      // Pose listener — jump = swing
-      let baselineHipY: number | null = null;
-      let lastJumpAt = 0;
+      // Pose listener — fast arm swing (wrist velocity) = racket swing
+      let lastSwingAt = 0;
+      let prevWrist: { x: number; y: number; t: number } | null = null;
       const w = window as unknown as { __mk9Update?: (lm: LM[] | null) => void };
-      const prev = w.__mk9Update;
+      const prevHook = w.__mk9Update;
       w.__mk9Update = (lm: LM[] | null) => {
-        prev?.(lm);
+        prevHook?.(lm);
         if (!lm) return;
-        const hip = lm[23] && lm[24] ? { y: (lm[23].y + lm[24].y) / 2 } : null;
-        if (!hip) return;
-        if (baselineHipY == null) baselineHipY = hip.y;
-        baselineHipY = baselineHipY * 0.97 + hip.y * 0.03;
-        const lift = baselineHipY - hip.y; // smaller y = higher in image
+        // Pick the faster of left/right wrist (15, 16); prefer the more visible
+        const rw = lm[16], lw = lm[15];
+        const wrist = rw || lw;
+        if (!wrist) return;
         const now = performance.now();
-        if (lift > 0.06 && now - lastJumpAt > 600) {
-          lastJumpAt = now;
-          trySwing();
+        if (prevWrist) {
+          const dt = Math.max(1, now - prevWrist.t) / 1000;
+          const dx = wrist.x - prevWrist.x;
+          const dy = wrist.y - prevWrist.y;
+          const speed = Math.sqrt(dx * dx + dy * dy) / dt; // normalized units per sec
+          if (speed > 2.2 && now - lastSwingAt > 500) {
+            lastSwingAt = now;
+            trySwing();
+          }
         }
+        prevWrist = { x: wrist.x, y: wrist.y, t: now };
       };
 
       // Animate
@@ -344,7 +350,7 @@ function TennisPage() {
         cancelAnimationFrame(frameId);
         ro.disconnect();
         window.removeEventListener("keydown", onKey);
-        w.__mk9Update = prev;
+        w.__mk9Update = prevHook;
         renderer?.dispose();
         if (renderer?.domElement.parentNode === stage) stage.removeChild(renderer.domElement);
       };
