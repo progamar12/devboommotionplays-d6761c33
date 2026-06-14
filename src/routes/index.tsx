@@ -75,6 +75,10 @@ function Index() {
             <div className="font-mono text-xs uppercase tracking-widest text-primary">→ Browser</div>
             <div className="mt-1 text-sm text-muted-foreground">Built-in Chrome-style web browser</div>
           </Link>
+          <Link to="/tennis" className="block rounded-xl border border-border bg-card px-6 py-4 hover:border-accent transition">
+            <div className="font-mono text-xs uppercase tracking-widest text-accent">→ VR Tennis</div>
+            <div className="mt-1 text-sm text-muted-foreground">First-person sunset court. Jump to swing.</div>
+          </Link>
         </div>
       </div>
     </div>
