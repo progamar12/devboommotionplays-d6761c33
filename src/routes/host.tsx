@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Mk9Game } from "@/components/Mk9Game";
+import { MotionTennis } from "@/components/MotionTennis";
 
 export const Route = createFileRoute("/host")({
   head: () => ({
@@ -30,7 +31,7 @@ function HostPage() {
   const [message, setMessage] = useState<string>("Initializing…");
   const [fps, setFps] = useState<number>(0);
   const [landmarkCount, setLandmarkCount] = useState<number>(0);
-  const [view, setView] = useState<"skeleton" | "mk9">("skeleton");
+  const [view, setView] = useState<"skeleton" | "mk9" | "tennis">("skeleton");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -358,6 +359,10 @@ function HostPage() {
               onClick={() => setView("mk9")}
               className={`px-3 py-1.5 transition-colors ${view === "mk9" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
             >MK9</button>
+            <button
+              onClick={() => setView("tennis")}
+              className={`px-3 py-1.5 transition-colors ${view === "tennis" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >TENNIS</button>
           </div>
           <span>STATUS <span className="text-foreground">{status}</span></span>
           <span>FPS <span className="text-foreground">{fps}</span></span>
@@ -373,6 +378,13 @@ function HostPage() {
             <div className="absolute inset-0 flex items-center justify-center p-6">
               <div className="w-full max-w-4xl">
                 <Mk9Game />
+              </div>
+            </div>
+          )}
+          {view === "tennis" && (
+            <div className="absolute inset-0 flex items-center justify-center p-6">
+              <div className="w-full max-w-4xl">
+                <MotionTennis />
               </div>
             </div>
           )}
