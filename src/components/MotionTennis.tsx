@@ -278,16 +278,36 @@ export function MotionTennis() {
       ctx.beginPath(); ctx.arc(ball.x, ball.y, 8, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = "rgba(0,0,0,0.4)"; ctx.lineWidth = 1; ctx.stroke();
 
-      // HUD
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 22px ui-monospace, monospace";
-      ctx.textAlign = "center";
-      ctx.fillText(`${p1.score}  :  ${p2.score}`, W / 2, 30);
-      ctx.font = "11px ui-monospace, monospace";
-      ctx.fillStyle = "#00e6ff"; ctx.textAlign = "left";
-      ctx.fillText("YOU (motion)", 16, 24);
-      ctx.fillStyle = "#ff44cc"; ctx.textAlign = "right";
-      ctx.fillText(modeRef.current === "ai" ? "AI" : "P2 (arrows/space, Z/X swing)", W - 16, 24);
+      // HUD — team banners on each player's side; left team highlighted if leading/winning
+      const leftLead = p1.score > p2.score;
+      const matchWin = p1.score >= 5 || p2.score >= 5;
+      // team banner LEFT
+      ctx.fillStyle = leftLead ? "rgba(0,230,255,0.25)" : "rgba(0,230,255,0.08)";
+      ctx.fillRect(8, 8, 170, 44);
+      ctx.strokeStyle = "#00e6ff"; ctx.lineWidth = leftLead ? 2 : 1; ctx.strokeRect(8, 8, 170, 44);
+      ctx.fillStyle = "#00e6ff"; ctx.font = "bold 13px ui-monospace, monospace"; ctx.textAlign = "left";
+      ctx.fillText("TEAM LEFT", 18, 26);
+      ctx.font = "bold 22px ui-monospace, monospace"; ctx.fillText(String(p1.score), 18, 48);
+      // team banner RIGHT
+      ctx.fillStyle = !leftLead && p2.score > p1.score ? "rgba(255,68,204,0.25)" : "rgba(255,68,204,0.08)";
+      ctx.fillRect(W - 178, 8, 170, 44);
+      ctx.strokeStyle = "#ff44cc"; ctx.lineWidth = !leftLead && p2.score > p1.score ? 2 : 1;
+      ctx.strokeRect(W - 178, 8, 170, 44);
+      ctx.fillStyle = "#ff44cc"; ctx.font = "bold 13px ui-monospace, monospace"; ctx.textAlign = "right";
+      ctx.fillText(modeRef.current === "ai" ? "TEAM AI" : "TEAM RIGHT", W - 18, 26);
+      ctx.font = "bold 22px ui-monospace, monospace"; ctx.fillText(String(p2.score), W - 18, 48);
+      // center divider score
+      ctx.fillStyle = "#fff"; ctx.font = "bold 16px ui-monospace, monospace"; ctx.textAlign = "center";
+      ctx.fillText("VS", W / 2, 30);
+      // winner banner on the winner's side
+      if (matchWin) {
+        const onLeft = p1.score >= 5;
+        ctx.fillStyle = onLeft ? "rgba(0,230,255,0.85)" : "rgba(255,68,204,0.85)";
+        ctx.fillRect(onLeft ? 8 : W - 230, 70, 222, 40);
+        ctx.fillStyle = "#000"; ctx.font = "bold 18px ui-monospace, monospace";
+        ctx.textAlign = onLeft ? "left" : "right";
+        ctx.fillText(`TEAM ${onLeft ? "LEFT" : "RIGHT"} WINS!`, onLeft ? 20 : W - 20, 96);
+      }
 
       force((n) => (n + 1) % 1e6);
       raf = requestAnimationFrame(loop);
