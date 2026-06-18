@@ -122,40 +122,63 @@ export function MotionTennis() {
 
       // ---------- P2 ----------
       if (modeRef.current === "ai") {
-        // AI tracks ball when it's on its side
         const tx = ball.x < NET_X ? p2.baseX : Math.max(NET_X + 60, Math.min(W - 40, ball.x));
         const ty = ball.x < NET_X ? GROUND - 120 : Math.max(60, Math.min(GROUND - 30, ball.y));
         p2Cursor.x += (tx - p2Cursor.x) * Math.min(1, dt * 4.5);
         p2Cursor.y += (ty - p2Cursor.y) * Math.min(1, dt * 6);
-        // jump if ball high & close
         if (p2.y >= 0 && ball.x > NET_X && ball.y < 220 && Math.abs(ball.x - p2.baseX) < 180) p2.vy = -360;
+        const swing = (ball.x > NET_X && Math.abs(ball.x - p2Cursor.x) < 90 && Math.abs(ball.y - p2Cursor.y) < 80) ? 1 : 0;
+        const setP2Hand = (h: Hand, tx2: number, ty2: number, swinging: number) => {
+          h.px = h.x; h.py = h.y; h.x = tx2; h.y = ty2;
+          h.vx = swinging ? -600 : (h.x - h.px) / Math.max(dt, 0.001);
+          h.vy = swinging ? -120 : (h.y - h.py) / Math.max(dt, 0.001);
+          h.active = true;
+        };
+        setP2Hand(p2.hands.left, p2Cursor.x - 26, p2Cursor.y, swing);
+        setP2Hand(p2.hands.right, p2Cursor.x + 26, p2Cursor.y, swing);
+      } else if (lm && lm.length >= 17) {
+        // PVP MOTION: two players share single pose stream.
+        // Player A stands on LEFT of camera (his/her wrists appear at nx<0.5 after mirror) -> P1
+        // Player B on RIGHT of camera (nx>=0.5) -> P2. Both wrists used; each routed by side.
+        const halfW = NET_X - 40;
+        const wrists = [lm[15], lm[16]];
+        // reset active flags; we'll mark whichever side each wrist falls on
+        const p1Hands = [p1.hands.left, p1.hands.right];
+        const p2Hands = [p2.hands.left, p2.hands.right];
+        let p1i = 0, p2i = 0;
+        for (const w of wrists) {
+          const nx = 1 - w.x; // mirrored
+          const ny = w.y;
+          if (nx < 0.5) {
+            const h = p1Hands[p1i++ % 2];
+            const tx2 = 20 + Math.max(0, Math.min(1, nx * 2)) * halfW;
+            const ty2 = 40 + ny * (GROUND - 60);
+            h.px = h.x; h.py = h.y;
+            h.x = h.x * 0.4 + tx2 * 0.6; h.y = h.y * 0.4 + ty2 * 0.6;
+            h.vx = (h.x - h.px) / Math.max(dt, 0.001);
+            h.vy = (h.y - h.py) / Math.max(dt, 0.001);
+            h.active = true;
+          } else {
+            const h = p2Hands[p2i++ % 2];
+            const tx2 = NET_X + 20 + Math.max(0, Math.min(1, (nx - 0.5) * 2)) * halfW;
+            const ty2 = 40 + ny * (GROUND - 60);
+            h.px = h.x; h.py = h.y;
+            h.x = h.x * 0.4 + tx2 * 0.6; h.y = h.y * 0.4 + ty2 * 0.6;
+            h.vx = (h.x - h.px) / Math.max(dt, 0.001);
+            h.vy = (h.y - h.py) / Math.max(dt, 0.001);
+            h.active = true;
+          }
+        }
+        // jump per side from shoulder rises
+        const lSh = lm[11], rSh = lm[12];
+        if (baselineRef.current.shY !== null) {
+          if (p1.y >= 0 && baselineRef.current.shY - lSh.y > 0.07) p1.vy = -380;
+          if (p2.y >= 0 && baselineRef.current.shY - rSh.y > 0.07) p2.vy = -380;
+        }
       } else {
-        const k = keysRef.current;
-        const sp = 320;
-        if (k["arrowleft"]) p2Cursor.x -= sp * dt;
-        if (k["arrowright"]) p2Cursor.x += sp * dt;
-        if (k["arrowup"]) p2Cursor.y -= sp * dt;
-        if (k["arrowdown"]) p2Cursor.y += sp * dt;
-        if (k[" "] && p2.y >= 0) p2.vy = -380;
-        p2Cursor.x = Math.max(NET_X + 20, Math.min(W - 40, p2Cursor.x));
-        p2Cursor.y = Math.max(40, Math.min(GROUND - 30, p2Cursor.y));
+        p2.hands.left.active = false;
+        p2.hands.right.active = false;
       }
-      // P2 two hands flanking cursor; swing impulses
-      const swingL = modeRef.current === "ai"
-        ? (ball.x > NET_X && Math.abs(ball.x - p2Cursor.x) < 90 && Math.abs(ball.y - p2Cursor.y) < 80 ? 1 : 0)
-        : (keysRef.current["z"] ? 1 : 0);
-      const swingR = modeRef.current === "ai"
-        ? swingL
-        : (keysRef.current["x"] ? 1 : 0);
-      const setP2Hand = (h: Hand, tx: number, ty: number, swinging: number) => {
-        h.px = h.x; h.py = h.y;
-        h.x = tx; h.y = ty;
-        h.vx = swinging ? -600 : (h.x - h.px) / Math.max(dt, 0.001);
-        h.vy = swinging ? -120 : (h.y - h.py) / Math.max(dt, 0.001);
-        h.active = true;
-      };
-      setP2Hand(p2.hands.left, p2Cursor.x - 26, p2Cursor.y, swingL);
-      setP2Hand(p2.hands.right, p2Cursor.x + 26, p2Cursor.y, swingR);
 
       // ---------- jump physics ----------
       for (const s of [p1, p2]) {
