@@ -331,8 +331,7 @@ export function MotionTennis() {
       </div>
       <canvas ref={canvasRef} width={W} height={H} className="w-full rounded-lg border border-border bg-black" />
       <p className="font-mono text-[11px] text-muted-foreground leading-relaxed">
-        Swing either fist like a racket to hit the ball. Jump by jumping IRL. Ball can bounce anywhere on the court — let it bounce twice and the point is lost.
-        {" "}In <b>vs P2</b> mode the second player uses Arrow keys to move, Space to jump, Z/X to swing left/right racket.
+        Swing either fist like a racket. Jump IRL to jump. In <b>vs P2</b> mode both players stand in front of the camera — the player on the LEFT controls Team Left, the player on the RIGHT controls Team Right. First team to 5 wins.
       </p>
     </div>
   );
