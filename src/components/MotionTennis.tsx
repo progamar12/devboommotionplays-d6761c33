@@ -122,40 +122,63 @@ export function MotionTennis() {
 
       // ---------- P2 ----------
       if (modeRef.current === "ai") {
-        // AI tracks ball when it's on its side
         const tx = ball.x < NET_X ? p2.baseX : Math.max(NET_X + 60, Math.min(W - 40, ball.x));
         const ty = ball.x < NET_X ? GROUND - 120 : Math.max(60, Math.min(GROUND - 30, ball.y));
         p2Cursor.x += (tx - p2Cursor.x) * Math.min(1, dt * 4.5);
         p2Cursor.y += (ty - p2Cursor.y) * Math.min(1, dt * 6);
-        // jump if ball high & close
         if (p2.y >= 0 && ball.x > NET_X && ball.y < 220 && Math.abs(ball.x - p2.baseX) < 180) p2.vy = -360;
+        const swing = (ball.x > NET_X && Math.abs(ball.x - p2Cursor.x) < 90 && Math.abs(ball.y - p2Cursor.y) < 80) ? 1 : 0;
+        const setP2Hand = (h: Hand, tx2: number, ty2: number, swinging: number) => {
+          h.px = h.x; h.py = h.y; h.x = tx2; h.y = ty2;
+          h.vx = swinging ? -600 : (h.x - h.px) / Math.max(dt, 0.001);
+          h.vy = swinging ? -120 : (h.y - h.py) / Math.max(dt, 0.001);
+          h.active = true;
+        };
+        setP2Hand(p2.hands.left, p2Cursor.x - 26, p2Cursor.y, swing);
+        setP2Hand(p2.hands.right, p2Cursor.x + 26, p2Cursor.y, swing);
+      } else if (lm && lm.length >= 17) {
+        // PVP MOTION: two players share single pose stream.
+        // Player A stands on LEFT of camera (his/her wrists appear at nx<0.5 after mirror) -> P1
+        // Player B on RIGHT of camera (nx>=0.5) -> P2. Both wrists used; each routed by side.
+        const halfW = NET_X - 40;
+        const wrists = [lm[15], lm[16]];
+        // reset active flags; we'll mark whichever side each wrist falls on
+        const p1Hands = [p1.hands.left, p1.hands.right];
+        const p2Hands = [p2.hands.left, p2.hands.right];
+        let p1i = 0, p2i = 0;
+        for (const w of wrists) {
+          const nx = 1 - w.x; // mirrored
+          const ny = w.y;
+          if (nx < 0.5) {
+            const h = p1Hands[p1i++ % 2];
+            const tx2 = 20 + Math.max(0, Math.min(1, nx * 2)) * halfW;
+            const ty2 = 40 + ny * (GROUND - 60);
+            h.px = h.x; h.py = h.y;
+            h.x = h.x * 0.4 + tx2 * 0.6; h.y = h.y * 0.4 + ty2 * 0.6;
+            h.vx = (h.x - h.px) / Math.max(dt, 0.001);
+            h.vy = (h.y - h.py) / Math.max(dt, 0.001);
+            h.active = true;
+          } else {
+            const h = p2Hands[p2i++ % 2];
+            const tx2 = NET_X + 20 + Math.max(0, Math.min(1, (nx - 0.5) * 2)) * halfW;
+            const ty2 = 40 + ny * (GROUND - 60);
+            h.px = h.x; h.py = h.y;
+            h.x = h.x * 0.4 + tx2 * 0.6; h.y = h.y * 0.4 + ty2 * 0.6;
+            h.vx = (h.x - h.px) / Math.max(dt, 0.001);
+            h.vy = (h.y - h.py) / Math.max(dt, 0.001);
+            h.active = true;
+          }
+        }
+        // jump per side from shoulder rises
+        const lSh = lm[11], rSh = lm[12];
+        if (baselineRef.current.shY !== null) {
+          if (p1.y >= 0 && baselineRef.current.shY - lSh.y > 0.07) p1.vy = -380;
+          if (p2.y >= 0 && baselineRef.current.shY - rSh.y > 0.07) p2.vy = -380;
+        }
       } else {
-        const k = keysRef.current;
-        const sp = 320;
-        if (k["arrowleft"]) p2Cursor.x -= sp * dt;
-        if (k["arrowright"]) p2Cursor.x += sp * dt;
-        if (k["arrowup"]) p2Cursor.y -= sp * dt;
-        if (k["arrowdown"]) p2Cursor.y += sp * dt;
-        if (k[" "] && p2.y >= 0) p2.vy = -380;
-        p2Cursor.x = Math.max(NET_X + 20, Math.min(W - 40, p2Cursor.x));
-        p2Cursor.y = Math.max(40, Math.min(GROUND - 30, p2Cursor.y));
+        p2.hands.left.active = false;
+        p2.hands.right.active = false;
       }
-      // P2 two hands flanking cursor; swing impulses
-      const swingL = modeRef.current === "ai"
-        ? (ball.x > NET_X && Math.abs(ball.x - p2Cursor.x) < 90 && Math.abs(ball.y - p2Cursor.y) < 80 ? 1 : 0)
-        : (keysRef.current["z"] ? 1 : 0);
-      const swingR = modeRef.current === "ai"
-        ? swingL
-        : (keysRef.current["x"] ? 1 : 0);
-      const setP2Hand = (h: Hand, tx: number, ty: number, swinging: number) => {
-        h.px = h.x; h.py = h.y;
-        h.x = tx; h.y = ty;
-        h.vx = swinging ? -600 : (h.x - h.px) / Math.max(dt, 0.001);
-        h.vy = swinging ? -120 : (h.y - h.py) / Math.max(dt, 0.001);
-        h.active = true;
-      };
-      setP2Hand(p2.hands.left, p2Cursor.x - 26, p2Cursor.y, swingL);
-      setP2Hand(p2.hands.right, p2Cursor.x + 26, p2Cursor.y, swingR);
 
       // ---------- jump physics ----------
       for (const s of [p1, p2]) {
@@ -255,16 +278,36 @@ export function MotionTennis() {
       ctx.beginPath(); ctx.arc(ball.x, ball.y, 8, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = "rgba(0,0,0,0.4)"; ctx.lineWidth = 1; ctx.stroke();
 
-      // HUD
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 22px ui-monospace, monospace";
-      ctx.textAlign = "center";
-      ctx.fillText(`${p1.score}  :  ${p2.score}`, W / 2, 30);
-      ctx.font = "11px ui-monospace, monospace";
-      ctx.fillStyle = "#00e6ff"; ctx.textAlign = "left";
-      ctx.fillText("YOU (motion)", 16, 24);
-      ctx.fillStyle = "#ff44cc"; ctx.textAlign = "right";
-      ctx.fillText(modeRef.current === "ai" ? "AI" : "P2 (arrows/space, Z/X swing)", W - 16, 24);
+      // HUD — team banners on each player's side; left team highlighted if leading/winning
+      const leftLead = p1.score > p2.score;
+      const matchWin = p1.score >= 5 || p2.score >= 5;
+      // team banner LEFT
+      ctx.fillStyle = leftLead ? "rgba(0,230,255,0.25)" : "rgba(0,230,255,0.08)";
+      ctx.fillRect(8, 8, 170, 44);
+      ctx.strokeStyle = "#00e6ff"; ctx.lineWidth = leftLead ? 2 : 1; ctx.strokeRect(8, 8, 170, 44);
+      ctx.fillStyle = "#00e6ff"; ctx.font = "bold 13px ui-monospace, monospace"; ctx.textAlign = "left";
+      ctx.fillText("TEAM LEFT", 18, 26);
+      ctx.font = "bold 22px ui-monospace, monospace"; ctx.fillText(String(p1.score), 18, 48);
+      // team banner RIGHT
+      ctx.fillStyle = !leftLead && p2.score > p1.score ? "rgba(255,68,204,0.25)" : "rgba(255,68,204,0.08)";
+      ctx.fillRect(W - 178, 8, 170, 44);
+      ctx.strokeStyle = "#ff44cc"; ctx.lineWidth = !leftLead && p2.score > p1.score ? 2 : 1;
+      ctx.strokeRect(W - 178, 8, 170, 44);
+      ctx.fillStyle = "#ff44cc"; ctx.font = "bold 13px ui-monospace, monospace"; ctx.textAlign = "right";
+      ctx.fillText(modeRef.current === "ai" ? "TEAM AI" : "TEAM RIGHT", W - 18, 26);
+      ctx.font = "bold 22px ui-monospace, monospace"; ctx.fillText(String(p2.score), W - 18, 48);
+      // center divider score
+      ctx.fillStyle = "#fff"; ctx.font = "bold 16px ui-monospace, monospace"; ctx.textAlign = "center";
+      ctx.fillText("VS", W / 2, 30);
+      // winner banner on the winner's side
+      if (matchWin) {
+        const onLeft = p1.score >= 5;
+        ctx.fillStyle = onLeft ? "rgba(0,230,255,0.85)" : "rgba(255,68,204,0.85)";
+        ctx.fillRect(onLeft ? 8 : W - 230, 70, 222, 40);
+        ctx.fillStyle = "#000"; ctx.font = "bold 18px ui-monospace, monospace";
+        ctx.textAlign = onLeft ? "left" : "right";
+        ctx.fillText(`TEAM ${onLeft ? "LEFT" : "RIGHT"} WINS!`, onLeft ? 20 : W - 20, 96);
+      }
 
       force((n) => (n + 1) % 1e6);
       raf = requestAnimationFrame(loop);
@@ -288,8 +331,7 @@ export function MotionTennis() {
       </div>
       <canvas ref={canvasRef} width={W} height={H} className="w-full rounded-lg border border-border bg-black" />
       <p className="font-mono text-[11px] text-muted-foreground leading-relaxed">
-        Swing either fist like a racket to hit the ball. Jump by jumping IRL. Ball can bounce anywhere on the court — let it bounce twice and the point is lost.
-        {" "}In <b>vs P2</b> mode the second player uses Arrow keys to move, Space to jump, Z/X to swing left/right racket.
+        Swing either fist like a racket. Jump IRL to jump. In <b>vs P2</b> mode both players stand in front of the camera — the player on the LEFT controls Team Left, the player on the RIGHT controls Team Right. First team to 5 wins.
       </p>
     </div>
   );
